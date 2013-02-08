@@ -23,7 +23,7 @@
     (else (fk))))
 
 ;; Now we extend it to handle ... patterns
-(trace-define (match*? kw* p e sk fk)
+(define (match*? kw* p e sk fk)
   (cond
     ((and (pair? p) (pair? (cdr p)) (eq? '... (cadr p)) (pair? e))
      (match*? kw* (car p) (car e)
