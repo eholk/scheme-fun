@@ -59,4 +59,30 @@
     ((assq p bindings) => cdr)
     (else p)))
 
+;; This version handles ... patterns. The environment is now a list of
+;; (name depth . val*) things.
+(define (instantiate* p bindings)
+  (cond
+    ((and (pair? p) (pair? (cdr p)) (eq? '... (cadr p)))
+     ;; Find the bindings used by the car of this pattern.
+     (let ((bindings (filter-bindings (car p) bindings)))
+       ;; TODO
+       bindings))
+    ((pair? p)
+     (cons (instantiate* (car p) bindings)
+           (instantiate* (cdr p) bindings)))
+    ;; We want to make sure that the ... depth counter is 0.
+    ((assq p bindings) => cddr)
+    (else p)))
 
+(define (filter-bindings p bindings)
+  (if (null? bindings)
+      '()
+      (if (mem* (caar bindings) p)
+          (cons (car bindings) (filter-bindings p (cdr bindings)))
+          (filter-bindings p (cdr bindings)))))
+
+(define (mem* x ls)
+  (if (pair? ls)
+      (or (mem* x (car ls)) (mem* x (cdr ls)))
+      (eq? x ls)))
