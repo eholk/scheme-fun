@@ -47,3 +47,16 @@
     ((and (null? p) (null? e))
      (sk))
     (else (fk))))
+
+;; The hard part of matching ... and tracking bindings seems to be
+;; more on the substitution side. We'll pause for a moment to do
+;; substitution to figure out a decent data structure.
+(define (instantiate p bindings)
+  (cond
+    ((pair? p)
+     (cons (instantiate (car p) bindings)
+           (instantiate (cdr p) bindings)))
+    ((assq p bindings) => cdr)
+    (else p)))
+
+
