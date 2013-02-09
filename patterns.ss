@@ -65,12 +65,15 @@
   (cond
     ((and (pair? p) (pair? (cdr p)) (eq? '... (cadr p)))
      (let ((bindings... (extract-... (car p) bindings)))
-       (append
-        (apply map (cons (lambda b*
-                           (instantiate* (car p)
-                                         (append (apply append b*) bindings)))
-                         bindings...))
-        (instantiate* (cddr p) bindings))))
+       (if (null? bindings...)
+           (instantiate* (cddr p) bindings)
+           (append
+            (apply map (cons (lambda b*
+                               (instantiate* (car p)
+                                             (append (apply append b*)
+                                                     bindings)))
+                             bindings...))
+            (instantiate* (cddr p) bindings)))))
     ((pair? p)
      (cons (instantiate* (car p) bindings)
            (instantiate* (cdr p) bindings)))
@@ -83,7 +86,7 @@
       '()
       (let ((rest (extract-... p (cdr bindings)))
             (b (car bindings)))
-        (if (eq? (car b) '...)
+        (if (and (eq? (car b) '...) (not (null? (cdr b))))
             (let ((names (map car (cadr b))))
               (if (ormap (lambda (x) (mem* x p)) names)
                   (cons (cdr b) rest)
@@ -105,3 +108,5 @@
 '((... ((x . a) (e . 5)) ((x . b) (e . 6)) ((x . c) (e . 7))) (b . (+ a b c)))
 
 (instantiate* '(let ((x e) ...) b) '((... ((x . a) (e . 5)) ((x . b) (e . 6)) ((x . c) (e . 7))) (b . (+ a b c))))
+
+(instantiate* '(let ((x e) ...) b) '((...) (b . (+ a b c))))
