@@ -59,8 +59,9 @@
     ((assq p bindings) => cdr)
     (else p)))
 
-;; This version handles ... patterns. The environment is now a list of
-;; (name depth . val*) things.
+;; This version handles ... patterns. The environment can now contain
+;; (...) entries, which contain bindings that were matched under an
+;; ellipsis pattern.
 (define (instantiate* p bindings)
   (cond
     ((and (pair? p) (pair? (cdr p)) (eq? '... (cadr p)))
@@ -110,3 +111,56 @@
 (instantiate* '(let ((x e) ...) b) '((... ((x . a) (e . 5)) ((x . b) (e . 6)) ((x . c) (e . 7))) (b . (+ a b c))))
 
 (instantiate* '(let ((x e) ...) b) '((...) (b . (+ a b c))))
+
+
+;; Now we make a new version of match* that passes a list of bindings
+;; to the success continuation.
+(define (match* kw* p e sk fk)
+  (cond
+    ((and (pair? p) (pair? (cdr p)) (eq? '... (cadr p)))
+     (let loop ((e e)
+                (b '()))
+       (if (null? e)
+           (match* kw* (cddr p) e
+                   (lambda (b^) (sk `((... . ,b) . ,b^)))
+                   fk)
+           (match* kw* (car p) (car e)
+                   (lambda (b^)
+                     (loop (cdr e) (cons b^ b)))
+                   (lambda ()
+                     (match* kw* (cddr p) e
+                             (lambda (b^) (sk `((... . ,b) . ,b^)))
+                             fk))))))
+    ((and (pair? p) (pair? e))
+     (match* kw* (car p) (car e)
+             (lambda (b)
+               (match* kw* (cdr p) (cdr e)
+                        (lambda (b^) (sk (append b b^)))
+                        fk))
+             fk))
+    ((and (memq p kw*) (eq? p e))
+     (sk '()))
+    ((and (symbol? p) (not (memq p kw*)))
+     (if (memq e kw*)
+         (error 'match* "misplaced aux keyword" e)
+         (sk (list (cons p e)))))
+    ((and (null? p) (null? e))
+     (sk '()))
+    (else (fk))))
+
+;; some tests
+(match* '() '(_ ((x e) ...) b) '(let () (+ a b c))
+        (lambda (b) b) (lambda () #f))
+
+(match* '() '(_ () b) '(let () (+ a b c))
+        (lambda (b) b) (lambda () #f))
+
+(match* '() '(_ (xe ...) b) '(let () (+ a b c))
+        (lambda (b) b) (lambda () #f))
+
+(match* '() '(_ ((x e) ...) b) '(let () (+ a b c))
+        (lambda (b) (list (instantiate* '(_ ((x e) ...) b) b) b)) (lambda () #f))
+
+(match* '() '(_ ((x e) ...) b) '(let ((a 1) (b 2) (c 3)) (+ a b c))
+        (lambda (b) (list (instantiate* '(_ ((x e) ...) b) b) b))
+        (lambda () #f))
