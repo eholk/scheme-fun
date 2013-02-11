@@ -3,3 +3,8 @@
     ((_ e1 e2)
      (let ((t e1))
        (if t t e2)))))
+
+(define-syntax my-let
+  (syntax-rules ()
+    ((_ ((x e) ...) b)
+     ((lambda (x ...) b) e ...))))
