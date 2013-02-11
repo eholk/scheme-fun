@@ -95,9 +95,12 @@
             rest))))
 
 (define (mem* x ls)
-  (if (pair? ls)
-      (or (mem* x (car ls)) (mem* x (cdr ls)))
-      (eq? x ls)))
+  (cond
+    ((and (pair? ls) (pair? (cdr ls)) (eq? (cadr ls) '...))
+     #f)
+    ((pair? ls)
+     (or (mem* x (car ls)) (mem* x (cdr ls))))
+    (else (eq? x ls))))
 
 ;; Here's an example...
 '(let ((a 5) (b 6) (c 7)) (+ a b c))
