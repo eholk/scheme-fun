@@ -126,7 +126,7 @@
                    fk)
            (match* kw* (car p) (car e)
                    (lambda (b^)
-                     (loop (cdr e) (cons b^ b)))
+                     (loop (cdr e) (snoc b b^)))
                    (lambda ()
                      (match* kw* (cddr p) e
                              (lambda (b^) (sk `((... . ,b) . ,b^)))
@@ -147,6 +147,11 @@
     ((and (null? p) (null? e))
      (sk '()))
     (else (fk))))
+
+(define (snoc d a)
+  (if (null? d)
+      (list a)
+      (cons (car d) (snoc (cdr d) a))))
 
 ;; some tests
 (match* '() '(_ ((x e) ...) b) '(let () (+ a b c))
