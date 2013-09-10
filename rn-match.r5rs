@@ -1,3 +1,5 @@
+;; -*- scheme -*-
+
 ;; This is included by the wrappers under the chez/ and plt/ directories.
 
 ;; This depends on three hooks:
@@ -14,13 +16,13 @@
 ;(eval (car pr) (interaction-environment)) ;(scheme-report-environment 5)
 ;(eval (car pr) (environment '(r6rs)))
 
-#;
+(define simple-eval eval)
+
 (define ellipsis?
   (lambda (x)
     (and (identifier? x) (literal-identifier=? x #'(... ...)))))
   
 
-#;
 ;; Either the raw delay version or an explicit 'call-with-values' version:
 (define-syntax delay-values
   (syntax-rules ()
@@ -34,7 +36,6 @@
 	       (lambda args (set! vals args) (apply values args))))
 	 )))))
 
-#;
 ;; A dummy binding that uses the normal backquote
 (define-syntax extend-backquote
   (lambda (x)
@@ -107,7 +108,7 @@
      ;((kwd e) (force e))
      ((kwd e) (e))
      ))
-#;
+
 ;; Do I really need a promise?
 ;; [2007.04.08] ACK! At least for now I still do...
 (define-syntax delay-values
