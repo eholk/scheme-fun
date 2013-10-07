@@ -24,6 +24,8 @@
              (value-of-cps (car e*) env
                            `(loop-k ,loop ,e*))
              (value-of-cps e env k))))
+    ((call/cc ,e)
+     (value-of-cps e env `(call/cc-k ,k)))
     ((,op ,e1 ,e2) (guard (memq op '(+ * -)))
      (value-of-cps e1 env
                    `(v1-k ,e2 ,env ,op ,k)))
@@ -43,4 +45,6 @@
     ((rator-k ,e2 ,env ,k)
      (value-of-cps e2 env `(rand-k ,v ,k)))
     ((rand-k ,f ,k)
-     (f v k))))
+     (f v k))
+    ((call/cc-k ,k)
+     (v (lambda (v k^) (apply-k k v)) k))))
