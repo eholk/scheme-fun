@@ -54,3 +54,11 @@
         (printf "~d. ~a: ~s\n" depth (caar env) (cdar env))
         (+ 1 depth))
       0))
+
+(((lambda (x)
+    (lambda (y)
+      (begin
+        (debug)
+        (+ x y))))
+  4)
+ 5)
