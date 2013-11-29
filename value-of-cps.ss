@@ -31,6 +31,10 @@
                      (value-of-cps e2 env
                                    (lambda (v2)
                                      (k ((eval op) v1 v2)))))))
+    ((call/cc ,e)
+     (value-of-cps e env
+                   (lambda (f)
+                     (f (lambda (v k^) (k v))))))
     ((,e1 ,e2)
      (value-of-cps e1 env
                    (lambda (f)
