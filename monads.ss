@@ -528,6 +528,10 @@
 ;; threaded around anywhere. Now you can easily add new forms to the
 ;; language without having to worry about threading things the right
 ;; way.
+;;
+;; Notice how if we had written this monadically to start with, all
+;; we'd have to do is add three short clauses to the interpreter,
+;; rather than rewriting everything.
 
 
 ;; This expression uses all parts of the interpreter:
