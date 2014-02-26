@@ -47,7 +47,7 @@
   (if (zero? n)
       (return 1)
       (bind (fact-cps/bind (- n 1))
-            (lambda (v) (* v n)))))
+            (lambda (v) (return (* v n))))))
 
 ;; and do syntax. We should be able to use the same macro if we did it
 ;; right.
